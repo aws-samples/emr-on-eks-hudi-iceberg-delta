@@ -2,6 +2,11 @@
 
 This repository holds sample code for the blog: Get a quick start with Apache Hudi, Apache Iceberg and Delta Lake with EMR on EKS. It gets you familiar with three transactonal storage frameworks in a real-world use case. For a demo purpose, we will show you how to ETL incremental data changes in Data Lake by implementing Slowly Changing Dimension Type 2 (SCD2), then deploy them with Amazon EMR on Amazon EKS. 
 
+## Examples
+* [1. Run Apache Hudi with EMR on EKS](#Example-1-Run-Apache-Hudi-with-EMR-on-EKS) 
+* [2. Run Apache Iceberg with EMR on EKS](#Example-2-Run-Apache-Iceberg-with-EMR-on-EKS) 
+* [3. Run Open-Source Delta Lake with EMR on EKS](#Example-3:-Run-Open-Source-Delta-Lake-with-EMR-on-EKS)
+
 
 ## Prerequisite
 
@@ -21,9 +26,9 @@ cd emr-on-eks-hudi-iceberg-delta
 ## Set up test environment
 Run the following provision script to setup a test environment. The infrastructure deployment includes:
 
-* A new S3 bucket to store sample data and job code
-* An EKS cluster (version 1.21) in a new VPC across 2 AZs
-* An EMR virtual cluster in the same VPC
+* a new S3 bucket to store sample data and job code
+* an EKS cluster (version 1.21) in a new VPC across 2 AZs
+* an EMR virtual cluster in the same VPC
 * registered to emr namespace in EKS
 * EMR on EKS configuration is done
 * a job execution role contains DynamoDB access, because we use the DDB to provides concurrency controls that ensure atomic transaction with Hudi & Iceberg tables
@@ -138,14 +143,15 @@ aws emr-containers start-job-run \
 ```bash
 select * from hudi_contact_cow where id=103
 ```
-<img src="./image/hudi_cow_query.png" width="350">
+<img src="./image/hudi_cow_query.png">
 
 ```bash
 select * from hudi_contact_mor_rt where id=103
 ```
-<img src="./image/hudi_mor_query.png" width="350">
+<img src="./image/hudi_mor_query.png">
 
 ## Example 2: Run Apache Iceberg with EMR on EKS 
+
 Starting with Amazon EMR version 6.6.0, you can use Apache Spark 3 with the Iceberg table format. By default, it provides `Iceberg version 0.13`. 
 
 The sample job creates an Iceberg table “iceberg_contact” in the “default” database of Glue. Here is the code snippet for the SCD2 type of MERGE operation:
@@ -228,7 +234,7 @@ aws emr-containers start-job-run \
 ```bash
 select * from iceberg_contact where id=103
 ```
-<img src="./image/iceberg_query.png" width="350">
+<img src="./image/iceberg_query.png">
 
 ## Example 3: Run Open-Source Delta Lake with EMR on EKS 
 
@@ -308,7 +314,7 @@ aws emr-containers start-job-run \
 ```bash
 select * from delta_contact where id=103
 ```
-<img src="./image/delta_query.png" width="350">
+<img src="./image/delta_query.png">
 
 
 ## Cleanup
