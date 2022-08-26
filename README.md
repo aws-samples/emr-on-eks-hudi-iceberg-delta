@@ -29,8 +29,8 @@ Run the following provision script to setup a test environment. The infrastructu
 * a new S3 bucket to store sample data and job code
 * an EKS cluster (version 1.21) in a new VPC across 2 AZs
 * an EMR virtual cluster in the same VPC
-* registered to emr namespace in EKS
-* EMR on EKS configuration is done
+  - registered to emr namespace in EKS
+  - EMR on EKS configuration is done
 * a job execution role contains DynamoDB access, because we use the DDB to provides concurrency controls that ensure atomic transaction with Hudi & Iceberg tables
 
 ```bash
@@ -160,7 +160,7 @@ Starting with Amazon EMR version 6.6.0, you can use Apache Spark 3 with the Iceb
 
 The sample job creates an Iceberg table “iceberg_contact” in the “default” database of Glue. Here is the code snippet for the SCD2 type of MERGE operation:
 
-- [hudi_submit_cow.sh](./iceberg/iceberg_scd_script.py)
+- [iceberg_scd_script.py](./iceberg/iceberg_scd_script.py)
 
 ```bash
 # Read incremental CSV file with extra SCD2 columns
@@ -236,7 +236,7 @@ aws emr-containers start-job-run \
 	    "spark.sql.catalog.glue_catalog.lock.table": "myIcebergLockTable"
 	}}
 ]}'
-
+```
 3. Once the job is completed, query the table in Athena
 ```bash
 select * from iceberg_contact where id=103
@@ -328,6 +328,7 @@ select * from delta_contact where id=103
 
 
 ## Cleanup
+To avoid incurring future charges, delete the resources generated if you don’t need the solution anymore. Run the following clean up script (change the Region if necessary):
 ```bash
 export AWS_REGION=us-east-1
 export EKSCLUSTER_NAME=eks-quickstart
