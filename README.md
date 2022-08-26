@@ -247,8 +247,8 @@ select * from iceberg_contact where id=103
 
 Below is the Delta code snippet to load initial dataset. As a one-off task, there should be two tables setup on the same data:
 
-- Delta table “delta_table_contact”: Defined on the TABLE_LOCATION `s3://{S3_BUCKET_NAME}/delta/delta_contact`. The MERGE/UPSERT operation must implement on the Delta destination table. Athena can’t query this table though.
-- Athena table “delta_contact”: Defined on the manifest location `s3://{S3_BUCKET_NAME}/delta/delta_contact/_symlink_format_manifest/`. All read operations from Athena must use this table.
+- **Delta table "delta_table_contact"**: Defined on the TABLE_LOCATION `s3://{S3_BUCKET_NAME}/delta/delta_contact`. The MERGE/UPSERT operation must implement on the Delta destination table. Athena can’t query this table though.
+- **Athena table "delta_contact"**: Defined on the manifest location `s3://{S3_BUCKET_NAME}/delta/delta_contact/_symlink_format_manifest/`. All read operations from Athena must use this table.
 
 [delta_scd_script.py](./delta/delta_scd_script.py)
 ```bash
