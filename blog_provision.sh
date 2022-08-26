@@ -203,11 +203,8 @@ helm install nodescaler autoscaler/cluster-autoscaler --namespace kube-system --
 echo "==============================================="
 echo "  Patch k8s user permission for PVC ......"
 echo "==============================================="
+curl -o rbac_pactch.py https://raw.githubusercontent.com/aws/aws-emr-containers-best-practices/main/tools/pvc-permission/rbac_patch.py
 python3 rbac_pactch.py -n $EMR_NAMESPACE -p
 
-# echo "============================================================================="
-# echo "  Upload project examples to S3 ......"
-# echo "============================================================================="
-# aws s3 sync blog/ s3://$S3TEST_BUCKET/blog/
 
 echo "Finished, proceed to submitting a job"

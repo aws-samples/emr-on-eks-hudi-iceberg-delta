@@ -5,7 +5,7 @@ This repository holds sample code for the blog: Get a quick start with Apache Hu
 ## Examples
 * [1. Run Apache Hudi with EMR on EKS](#Example-1-Run-Apache-Hudi-with-EMR-on-EKS) 
 * [2. Run Apache Iceberg with EMR on EKS](#Example-2-Run-Apache-Iceberg-with-EMR-on-EKS) 
-* [3. Run Open-Source Delta Lake with EMR on EKS](#Example-3:-Run-Open-Source-Delta-Lake-with-EMR-on-EKS)
+* [3. Run Open-Source Delta Lake with EMR on EKS](#Example-3-Run-Open-Source-Delta-Lake-with-EMR-on-EKS)
 
 
 ## Prerequisite
@@ -39,7 +39,7 @@ export EKSCLUSTER_NAME=eks-quickstart
 ./blog_provision.sh
 
 # upload sample contact data to S3
-export ACCOUNTID=$(aws sts get-caller-identity —query Account —output text)
+export ACCOUNTID=$(aws sts get-caller-identity --query Account --output text)
 aws s3 sync data s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/data
 ```
 
@@ -47,7 +47,7 @@ aws s3 sync data s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/data
 
 The following python code snippet demonstrates the SCD type2 implementation logic. It creates Hudi tables in “default” database against Glue Data Catalog. See the full version script :
 
-[hudi_scd_script.py](./hudi_scd_script.py)
+[hudi_scd_script.py](./hudi/hudi_scd_script.py)
 ```bash
 # Read incremental contact CSV file with extra SCD columns
 delta_csv_df = spark.read.schema(contact_schema).format("csv")\
@@ -111,9 +111,13 @@ export ACCOUNTID=$(aws sts get-caller-identity —query Account —output text)
 aws s3 sync hudi/ s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/
 ````
 2. Submit Hudi jobs with EMR on EKS. 
+```bash
+./hudi/hudi_submit_cow.sh
+./hudi/hudi_submit_mor.sh
+```
 
-- [hudi_submit_cow.sh](./hudi_submit_cow.sh)
-- [hudi_submit_mor.sh](./hudi_submit_mor.sh)
+- [hudi_submit_cow.sh](./hudi/hudi_submit_cow.sh)
+- [hudi_submit_mor.sh](./hudi/hudi_submit_mor.sh)
 
 The following is the code snippet to create a Copy on Write(CoW) table:
 ```bash
@@ -156,7 +160,7 @@ Starting with Amazon EMR version 6.6.0, you can use Apache Spark 3 with the Iceb
 
 The sample job creates an Iceberg table “iceberg_contact” in the “default” database of Glue. Here is the code snippet for the SCD2 type of MERGE operation:
 
-- [hudi_submit_cow.sh](./iceberg_scd_script.py)
+- [hudi_submit_cow.sh](./iceberg/iceberg_scd_script.py)
 
 ```bash
 # Read incremental CSV file with extra SCD2 columns
@@ -200,6 +204,9 @@ export ACCOUNTID=$(aws sts get-caller-identity --query Account --output text)
 aws s3 sync hudi/ s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/
 ```
 2. Submit the job with EMR on EKS to create an SCD2 Iceberg table.
+```bash
+./iceberg/iceberg_submit.sh
+```
 
 - [iceberg_submit.sh](./iceberg/iceberg_submit.sh)
 
@@ -240,8 +247,8 @@ select * from iceberg_contact where id=103
 
 Below is the Delta code snippet to load initial dataset. As a one-off task, there should be two tables setup on the same data:
 
-#### - Delta table “delta_table_contact” - Defined on the TABLE_LOCATION `s3://{S3_BUCKET_NAME}/delta/delta_contact`. The MERGE/UPSERT operation must implement on the Delta destination table. Athena can’t query this table though.
-#### - Athena table “delta_contact” - Defined on the manifest location `s3://{S3_BUCKET_NAME}/delta/delta_contact/_symlink_format_manifest/`. All read operations from Athena must use this table.
+- Delta table “delta_table_contact”: Defined on the TABLE_LOCATION `s3://{S3_BUCKET_NAME}/delta/delta_contact`. The MERGE/UPSERT operation must implement on the Delta destination table. Athena can’t query this table though.
+- Athena table “delta_contact”: Defined on the manifest location `s3://{S3_BUCKET_NAME}/delta/delta_contact/_symlink_format_manifest/`. All read operations from Athena must use this table.
 
 [delta_scd_script.py](./delta/delta_scd_script.py)
 ```bash
@@ -261,13 +268,13 @@ spark.sql("ALTER TABLE delta_table_contact SET TBLPROPERTIES(delta.compatibility
 
 # Create a queriable table in Athena
 spark.sql(f"""
-    CREATE EXTERNAL TABLE IF NOT EXISTS default.delta_contact (
-     ....
-	)
-	ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
-	STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.SymlinkTextInputFormat'
-	OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
-	LOCATION '{TABLE_LOCATION}/_symlink_format_manifest/'""")
+CREATE EXTERNAL TABLE IF NOT EXISTS default.delta_contact (
+ ....
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.SymlinkTextInputFormat'
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION '{TABLE_LOCATION}/_symlink_format_manifest/'""")
 ```
 NOTE: the SQL statement “GENERATE symlink_format_manifest FOR TABLE ...” is a must step to set up the Athena for Delta Lake. Whenever the data in a Delta table is updated, you must regenerate the manifests. Therefore, we “ALTER TABLE .... SET TBLPROPERTIES(delta.compatibility.symlinkFormatManifest.enabled=true)” to automate the manifest refresh as a one-off setup. 
 
@@ -281,6 +288,9 @@ aws s3 sync delta/ s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/
 ```
 
 2.	Submit the job with EMR on EKS.
+```bash
+./delta/delta_submit.sh
+```
 
 [delta_submit.sh](./delta/delta_submit.sh)
 
