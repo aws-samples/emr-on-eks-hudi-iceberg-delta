@@ -1,4 +1,4 @@
-## EMR on EKS quick start for Apache Hudi, Apache Iceberg and Delta Lake 
+## Quick start for Apache Hudi, Apache Iceberg and Delta Lake with EMR on EKS
 
 This repository holds sample code for the blog: Get a quick start with Apache Hudi, Apache Iceberg and Delta Lake with EMR on EKS. It gets you familiar with three transactonal storage frameworks in a real world use case. For the demo purpose, we will show you how to ETL incremental data changes in Data Lake by implementing [Slowly Changing Dimension Type 2 (SCD2)](https://docs.oracle.com/cd/E41507_01/epm91pbr3/eng/epm/phcw/concept_UnderstandingSlowlyChangingDimensions-405719.html), then deploy with Amazon EMR on Amazon EKS. 
 
