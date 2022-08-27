@@ -282,7 +282,7 @@ spark.sql(f"""
   LOCATION '{TABLE_LOCATION}/_symlink_format_manifest/'
 """)
 ```
-NOTE: the SQL statement `GENERATE symlink_format_manifest FOR TABLE ...` is a must step to enable the table to be queriable in the Athena. 
+NOTE: the SQL statement `GENERATE symlink_format_manifest FOR TABLE ...` is a must step to enable the table to be queriable in Athena. 
 Whenever the Delta table is updated, you must regenerate the manifests. Therefore, we use `ALTER TABLE .... SET TBLPROPERTIES(delta.compatibility.symlinkFormatManifest.enabled=true)` to automate the manifest refresh as a one-off step. 
 
 Let's get started.
