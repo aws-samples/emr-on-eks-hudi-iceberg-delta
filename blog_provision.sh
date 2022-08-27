@@ -146,7 +146,7 @@ cloudWatch:
    enableTypes: ["*"]
 EOF
 
-# create eks cluster in a single AZ
+# create eks cluster in two AZs
 eksctl create cluster -f /tmp/ekscluster.yaml
 # if EKS cluster exists, comment out the line above, uncomment this line
 # eksctl create nodegroup -f /tmp/ekscluster.yaml
@@ -177,7 +177,7 @@ echo "==============================================="
 # Install k8s metrics server
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 
-# Install Cluster Autoscale that automatically adjusts the number of nodes in EKS
+# Install Cluster Autoscaler that automatically adjusts the number of nodes in EKS
 cat <<EOF >/tmp/autoscaler-config.yaml
 ---
 autoDiscovery:
