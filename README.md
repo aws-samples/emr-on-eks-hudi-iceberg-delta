@@ -1,6 +1,6 @@
 ## EMR on EKS quick start for Apache Hudi, Apache Iceberg and Delta Lake 
 
-This repository holds sample code for the blog: Get a quick start with Apache Hudi, Apache Iceberg and Delta Lake with EMR on EKS. It gets you familiar with three transactonal storage frameworks in a real-world use case. For a demo purpose, we will show you how to ETL incremental data changes in Data Lake by implementing Slowly Changing Dimension Type 2 (SCD2), then deploy them with Amazon EMR on Amazon EKS. 
+This repository holds sample code for the blog: Get a quick start with Apache Hudi, Apache Iceberg and Delta Lake with EMR on EKS. It gets you familiar with three transactonal storage frameworks in a real world use case. For the demo purpose, we will show you how to ETL incremental data changes in Data Lake by implementing [Slowly Changing Dimension Type 2 (SCD2)](https://docs.oracle.com/cd/E41507_01/epm91pbr3/eng/epm/phcw/concept_UnderstandingSlowlyChangingDimensions-405719.html), then deploy with Amazon EMR on Amazon EKS. 
 
 ## Examples
 * [1. Run Apache Hudi with EMR on EKS](#Example-1-Run-Apache-Hudi-with-EMR-on-EKS) 
@@ -31,7 +31,7 @@ Run the following provision script to setup a test environment. The infrastructu
 * an EMR virtual cluster in the same VPC
   - registered to emr namespace in EKS
   - EMR on EKS configuration is done
-* a job execution role contains DynamoDB access, because we use the DDB to provides concurrency controls that ensure atomic transaction with Hudi & Iceberg tables
+* a job execution role contains DynamoDB access, because we use DDB to provide concurrency controls that ensure atomic transaction with Hudi & Iceberg tables
 
 ```bash
 export AWS_REGION=us-east-1
@@ -83,7 +83,7 @@ merged_contact_df.write.format('org.apache.hudi')\
 
 ````
 
-In the job script, the hudiOptions properties were set to use Glue catalog and enable the DynamoDB-based Optimistic Concurrency Control (OCC).
+In the job script, the **hudiOptions** properties were set to sync metadata with Glue catalog and enable the [DynamoDB-based Optimistic Concurrency Control (OCC)](https://hudi.apache.org/docs/concurrency_control/).
 
 ```bash
 hudiOptions = {
@@ -92,8 +92,8 @@ hudiOptions = {
     "hoodie.datasource.hive_sync.mode":"hms",
     ....
     # DynamoDB based locking mechanisms
-    "hoodie.write.concurrency.mode":"optimistic_concurrency_control", #default is SINGLE_WRITER
-    "hoodie.cleaner.policy.failed.writes":"LAZY", #Hudi will delete any files written by failed writes to re-claim space
+    "hoodie.write.concurrency.mode":"optimistic_concurrency_control", # default is SINGLE_WRITER
+    "hoodie.cleaner.policy.failed.writes":"LAZY", # Hudi will delete any files written by failed writes to reclaim space
     "hoodie.write.lock.provider":"org.apache.hudi.aws.transaction.lock.DynamoDBBasedLockProvider",
     "hoodie.write.lock.dynamodb.table":"myHudiLockTable",
     "hoodie.write.lock.dynamodb.partition_key":"tablename",
@@ -115,11 +115,10 @@ aws s3 sync hudi/ s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/
 ./hudi/hudi_submit_cow.sh
 ./hudi/hudi_submit_mor.sh
 ```
-
 - [hudi_submit_cow.sh](./hudi/hudi_submit_cow.sh)
 - [hudi_submit_mor.sh](./hudi/hudi_submit_mor.sh)
 
-The following is the code snippet to create a Copy on Write(CoW) table:
+See the partial code to create a Copy on Write(CoW) table:
 ```bash
 aws emr-containers start-job-run \
   --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
@@ -143,7 +142,7 @@ aws emr-containers start-job-run \
     ]}'
 ```
 
-3. Query the output in Athena
+3. Query the Hudi tables in Athena
 ```bash
 select * from hudi_contact_cow where id=103
 ```
@@ -158,10 +157,11 @@ select * from hudi_contact_mor_rt where id=103
 
 Starting with Amazon EMR version 6.6.0, you can use Apache Spark 3 with the Iceberg table format. By default, it provides `Iceberg version 0.13`. 
 
-The sample job creates an Iceberg table “iceberg_contact” in the “default” database of Glue. Here is the code snippet for the SCD2 type of MERGE operation:
+The sample job creates an Iceberg table “iceberg_contact” in Glue's “default” database. See the full version of source code:
 
 - [iceberg_scd_script.py](./iceberg/iceberg_scd_script.py)
 
+The code snippet for the SCD2 type of MERGE operation:
 ```bash
 # Read incremental CSV file with extra SCD2 columns
 spark.read.schema(contact_schema)\
@@ -192,25 +192,25 @@ spark.sql(f"""
     WHEN NOT MATCHED THEN INSERT *
 """)
 ```
-NOTE: Check your job execution role `emr-on-eks-quickstart-execution-role`, which should have sufficient access to the required DynamoDB table `myIcebergLockTable`, as the table is used to obtain locks on the Iceberg table for multiple write operations against a single table. 
+NOTE: Check your job execution role `emr-on-eks-quickstart-execution-role`, which should have sufficient access to the required DynamoDB table `myIcebergLockTable`, as it is used to obtain locks on the Iceberg table for multiple write operations to a single table. 
 
 
 Let's get started.
 
-1. Firstly, upload the python script to the example S3 bucket:
+1. Firstly, upload the Iceberg script to S3 bucket:
 ```bash
 export AWS_REGION=us-east-1
 export ACCOUNTID=$(aws sts get-caller-identity --query Account --output text)
-aws s3 sync hudi/ s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/
+aws s3 sync iceberg/ s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/
 ```
 2. Submit the job with EMR on EKS to create an SCD2 Iceberg table.
 ```bash
 ./iceberg/iceberg_submit.sh
 ```
-
+Full version of source code:
 - [iceberg_submit.sh](./iceberg/iceberg_submit.sh)
 
-The code snippet:
+Code snippet:
 ```bash
 aws emr-containers start-job-run \
 --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
@@ -237,7 +237,7 @@ aws emr-containers start-job-run \
 	}}
 ]}'
 ```
-3. Once the job is completed, query the table in Athena
+3. Query the Iceberg table in Athena
 ```bash
 select * from iceberg_contact where id=103
 ```
@@ -245,7 +245,7 @@ select * from iceberg_contact where id=103
 
 ## Example 3: Run Open-Source Delta Lake with EMR on EKS 
 
-Below is the Delta code snippet to load initial dataset. As a one-off task, there should be two tables setup on the same data:
+Below is the Delta code snippet loading initial dataset. As a one-off task, there should be two tables setup on top of the same source data:
 
 - **Delta table "delta_table_contact"**: Defined on the TABLE_LOCATION `s3://{S3_BUCKET_NAME}/delta/delta_contact`. The MERGE/UPSERT operation must implement on the Delta destination table. Athena can’t query this table though.
 - **Athena table "delta_contact"**: Defined on the manifest location `s3://{S3_BUCKET_NAME}/delta/delta_contact/_symlink_format_manifest/`. All read operations from Athena must use this table.
@@ -268,15 +268,17 @@ spark.sql("ALTER TABLE delta_table_contact SET TBLPROPERTIES(delta.compatibility
 
 # Create a queriable table in Athena
 spark.sql(f"""
-CREATE EXTERNAL TABLE IF NOT EXISTS default.delta_contact (
- ....
-)
-ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
-STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.SymlinkTextInputFormat'
-OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
-LOCATION '{TABLE_LOCATION}/_symlink_format_manifest/'""")
+  CREATE EXTERNAL TABLE IF NOT EXISTS default.delta_contact (
+   ....
+  )
+  ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+  STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.SymlinkTextInputFormat'
+  OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+  LOCATION '{TABLE_LOCATION}/_symlink_format_manifest/'
+""")
 ```
-NOTE: the SQL statement “GENERATE symlink_format_manifest FOR TABLE ...” is a must step to set up the Athena for Delta Lake. Whenever the data in a Delta table is updated, you must regenerate the manifests. Therefore, we “ALTER TABLE .... SET TBLPROPERTIES(delta.compatibility.symlinkFormatManifest.enabled=true)” to automate the manifest refresh as a one-off setup. 
+NOTE: the SQL statement `GENERATE symlink_format_manifest FOR TABLE ...` is a must step to enable the table to be queriable in the Athena. 
+Whenever the Delta table is updated, you must regenerate the manifests. Therefore, we use `ALTER TABLE .... SET TBLPROPERTIES(delta.compatibility.symlinkFormatManifest.enabled=true)` to automate the manifest refresh as a one-off step. 
 
 Let's get started.
 
@@ -287,14 +289,14 @@ export ACCOUNTID=$(aws sts get-caller-identity --query Account --output text)
 aws s3 sync delta/ s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/
 ```
 
-2.	Submit the job with EMR on EKS.
+2.	Submit Delta job with EMR on EKS.
 ```bash
 ./delta/delta_submit.sh
 ```
 
 [delta_submit.sh](./delta/delta_submit.sh)
 
-Part of the script is as below:
+See the code snippet:
 ```bash
 aws emr-containers start-job-run \
 --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
@@ -320,7 +322,7 @@ aws emr-containers start-job-run \
 ]}‘
 ```
 
-3. Once the job is completed, query the table in Athena
+3. Query the Athena Delta table
 ```bash
 select * from delta_contact where id=103
 ```
