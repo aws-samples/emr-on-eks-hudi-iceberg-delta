@@ -11,6 +11,7 @@ This repository holds sample code for the blog: Get a quick start with Apache Hu
 ## Prerequisite
 
 - [eksctl](https://docs.aws.amazon.com/emr/latest/EMR-on-EKS-DevelopmentGuide/setting-up-eksctl.html) is installed
+- [helm](https://docs.aws.amazon.com/eks/latest/userguide/helm.html) is installed
 - [AWS CLI](https://docs.aws.amazon.com/emr/latest/EMR-on-EKS-DevelopmentGuide/setting-up-cli.html) is installed or upgraded
 - Install [kubectl](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html) 
 
