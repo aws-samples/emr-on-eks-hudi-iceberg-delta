@@ -200,11 +200,11 @@ EOF
 helm repo add autoscaler https://kubernetes.github.io/autoscaler
 helm install nodescaler autoscaler/cluster-autoscaler --namespace kube-system --values /tmp/autoscaler-config.yaml --debug
 
-# echo "==============================================="
+# echo "==================================================================="
 # echo "  Patch k8s user permission for PVC ......"
-# echo "==============================================="
-# curl -o rbac_pactch.py https://raw.githubusercontent.com/aws/aws-emr-containers-best-practices/main/tools/pvc-permission/rbac_patch.py
-# python3 rbac_pactch.py -n $EMR_NAMESPACE -p
+# echo "==================================================================="
+curl -o rbac_pactch.py https://raw.githubusercontent.com/aws/aws-emr-containers-best-practices/main/tools/pvc-permission/rbac_patch.py
+python3 rbac_pactch.py -n $EMR_NAMESPACE -p
 
 
 echo "Finished, proceed to submitting a job"
