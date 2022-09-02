@@ -27,3 +27,11 @@ eksctl delete cluster --name $EKSCLUSTER_NAME
 echo "delete EMR virtual cluster"
 export VIRTUAL_CLUSTER_ID=$(aws emr-containers list-virtual-clusters --query "virtualClusters[?name == '${EMRCLUSTER_NAME}' && state == 'RUNNING'].id" --output text)
 aws emr-containers delete-virtual-cluster --id $VIRTUAL_CLUSTER_ID
+
+echo "delete Glue catalog"
+tablelist=$(aws glue get-tables --database-name default --query 'TableList[?starts_with(StorageDescriptor.Location, `s3://emr-on-eks-quickstart-`) == `true`].Name' --output text)
+for name in $tablelist
+do
+	echo "delete table $name"
+	aws glue delete-table --database-name default --name $name
+done

@@ -29,7 +29,10 @@ load(f"s3://{S3_BUCKET_NAME}/blog/data/initial_contacts.csv")\
 .withColumn("valid_to", lit("").cast(TimestampType()))\
 .withColumn('iscurrent', lit(1).cast("int"))\
 .withColumn("checksum",md5(concat(col("name"),col("email"),col("state"))))\
-.writeTo("glue_catalog.default.iceberg_contact").createOrReplace()
+.writeTo("glue_catalog.default.iceberg_contact")\
+.tableProperty("location", f"s3://{S3_BUCKET_NAME}/iceberg")\
+.tableProperty("format-version", "2")\
+.createOrReplace()
 
 ##########################
 # Job2 - incremental load
@@ -38,11 +41,11 @@ load(f"s3://{S3_BUCKET_NAME}/blog/data/initial_contacts.csv")\
 delta_csv_df = spark.read.schema(contact_schema).\
 format("csv").options(header=False,delimiter=",").\
 load(f"s3://{S3_BUCKET_NAME}/blog/data/update_contacts.csv")\
-.withColumn("ts", lit(current_timestamp()).cast(TimestampType())) \
-.withColumn("valid_from", lit(current_timestamp()).cast(TimestampType())) \
+.withColumn("ts", lit(current_timestamp()).cast(TimestampType()))\
+.withColumn("valid_from", lit(current_timestamp()).cast(TimestampType()))\
 .withColumn("valid_to", lit("").cast(TimestampType()))\
 .withColumn("iscurrent",lit(1).cast("int")) \
-.withColumn("checksum",md5(concat(col("name"),col("email"),col("state")))) \
+.withColumn("checksum",md5(concat(col("name"),col("email"),col("state"))))\
 .createOrReplaceTempView('iceberg_contact_update')
 
 # Update existing records which are changed in the update file

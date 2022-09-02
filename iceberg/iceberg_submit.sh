@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: Copyright 2021 Amazon.com, Inc. or its affiliates.
 # SPDX-License-Identifier: MIT-0
 
+
 export EMRCLUSTER_NAME=emr-on-eks-quickstart
 export AWS_REGION=us-east-1
 export ACCOUNTID=$(aws sts get-caller-identity --query Account --output text)
