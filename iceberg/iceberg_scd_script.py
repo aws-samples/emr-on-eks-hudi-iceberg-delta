@@ -10,6 +10,8 @@ if (len(sys.argv) != 2):
   sys.exit(0)
   
 S3_BUCKET_NAME=sys.argv[1]
+TABLE_LOCATION=f"s3://{S3_BUCKET_NAME}/iceberg"
+
 # Defining the schema for the source data
 contact_schema = StructType(
             [ StructField("id",IntegerType(),True), 
@@ -30,7 +32,7 @@ load(f"s3://{S3_BUCKET_NAME}/blog/data/initial_contacts.csv")\
 .withColumn('iscurrent', lit(1).cast("int"))\
 .withColumn("checksum",md5(concat(col("name"),col("email"),col("state"))))\
 .writeTo("glue_catalog.default.iceberg_contact")\
-.tableProperty("location", f"s3://{S3_BUCKET_NAME}/iceberg")\
+.tableProperty("location", TABLE_LOCATION)\
 .tableProperty("format-version", "2")\
 .createOrReplace()
 
