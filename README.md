@@ -111,7 +111,7 @@ Let's get started.
 1. Firstly, upload the job script to S3.
 ```bash 
 export AWS_REGION=us-east-1
-export ACCOUNTID=$(aws sts get-caller-identity —query Account —output text)
+export ACCOUNTID=$(aws sts get-caller-identity --query Account --output text)
 aws s3 sync hudi/ s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/
 ````
 2. Submit Hudi jobs with EMR on EKS. 

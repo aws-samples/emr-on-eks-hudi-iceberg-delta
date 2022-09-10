@@ -12,9 +12,9 @@ export S3BUCKET=$EMRCLUSTER_NAME-$ACCOUNTID-$AWS_REGION
 
 aws emr-containers start-job-run \
   --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
-  --name em66-iceberg \
+  --name em68-iceberg \
   --execution-role-arn $EMR_ROLE_ARN \
-  --release-label emr-6.6.0-latest \
+  --release-label emr-6.8.0-latest \
   --job-driver '{
   "sparkSubmitJobDriver": {
       "entryPoint": "s3://'$S3BUCKET'/blog/iceberg_scd_script.py",
