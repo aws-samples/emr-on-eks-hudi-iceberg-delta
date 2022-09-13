@@ -25,7 +25,6 @@ aws emr-containers start-job-run \
         "classification": "spark-defaults", 
         "properties": {
           "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
-          "spark.sql.hive.convertMetastoreParquet": "false",
           "spark.hadoop.hive.metastore.client.factory.class": "com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"
          }}
     ], 
