@@ -125,7 +125,7 @@ iam:
       labels: {aws-usage: "cluster-ops"}
     wellKnownPolicies:
       autoScaler: true
-    roleName: eksctl-cluster-autoscaler-role
+    roleName: eksctl-cluster-autoscaler-role-$EKSCLUSTER_NAME
 managedNodeGroups: 
   - name: mn-od
     availabilityZones: ["${AWS_REGION}b"] 

@@ -116,6 +116,8 @@ aws s3 sync hudi/ s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/
 ````
 2. Submit Hudi jobs with EMR on EKS. 
 ```bash
+export EMRCLUSTER_NAME=emr-on-eks-quickstart
+export AWS_REGION=us-east-1
 ./hudi/hudi_submit_cow.sh
 ./hudi/hudi_submit_mor.sh
 ```
@@ -128,7 +130,7 @@ aws emr-containers start-job-run \
   --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
   --name em66-hudi-cow \
   --execution-role-arn $EMR_ROLE_ARN \
-  --release-label emr-6.6.0-latest \
+  --release-label emr-6.8.0-latest \
   --job-driver '{
   "sparkSubmitJobDriver": {
       "entryPoint": "s3://'$S3BUCKET'/blog/hudi_scd_script.py",
@@ -209,6 +211,8 @@ aws s3 sync iceberg/ s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/
 ```
 2. Submit the job with EMR on EKS to create an SCD2 Iceberg table.
 ```bash
+export EMRCLUSTER_NAME=emr-on-eks-quickstart
+export AWS_REGION=us-east-1
 ./iceberg/iceberg_submit.sh
 ```
 Full version of source code:
@@ -220,7 +224,7 @@ aws emr-containers start-job-run \
 --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
 --name em66-iceberg \
 --execution-role-arn $EMR_ROLE_ARN \
---release-label emr-6.6.0-latest \
+--release-label emr-6.8.0-latest \
 --job-driver '{
 	"sparkSubmitJobDriver": {
 	"entryPoint": "s3://'$S3BUCKET'/blog/iceberg_scd_script.py",
@@ -295,6 +299,8 @@ aws s3 sync delta/ s3://emr-on-eks-quickstart-${ACCOUNTID}-${AWS_REGION}/blog/
 
 2.	Submit Delta job with EMR on EKS.
 ```bash
+export EMRCLUSTER_NAME=emr-on-eks-quickstart
+export AWS_REGION=us-east-1
 ./delta/delta_submit.sh
 ```
 
@@ -306,7 +312,7 @@ aws emr-containers start-job-run \
 --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
 --name em66-delta \
 --execution-role-arn $EMR_ROLE_ARN \
---release-label emr-6.6.0-latest \
+--release-label emr-6.8.0-latest \
 --job-driver '{
 	"sparkSubmitJobDriver": {
 	"entryPoint": "s3://'$S3BUCKET'/blog/delta_scd_script.py",
@@ -321,7 +327,7 @@ aws emr-containers start-job-run \
 	"spark.sql.catalog.spark_catalog":"org.apache.spark.sql.delta.catalog.DeltaCatalog",
 	"spark.serializer":"org.apache.spark.serializer.KryoSerializer",
 	"spark.hadoop.hive.metastore.client.factory.class":"com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory",
-	"spark.jars": "https://repo1.maven.org/maven2/io/delta/delta-core_2.12/2.0.0/delta-core_2.12-2.0.0.jar,https://repo1.maven.org/maven2/io/delta/delta-storage/2.0.0/delta-storage-2.0.0.jar“
+	"spark.jars": "https://repo1.maven.org/maven2/io/delta/delta-core_2.12/2.1.0/delta-core_2.12-2.1.0.jar,https://repo1.maven.org/maven2/io/delta/delta-storage/2.1.0/delta-storage-2.1.0.jar“
 	}}
 ]}‘
 ```
