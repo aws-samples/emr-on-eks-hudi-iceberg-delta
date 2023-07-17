@@ -7,7 +7,7 @@
 # export EKSCLUSTER_NAME=eks-quickstart
 # export AWS_REGION=us-east-1
 export EMR_NAMESPACE=emr
-export EKS_VERSION=1.21
+export EKS_VERSION=1.24
 export EMRCLUSTER_NAME=emr-on-$EKSCLUSTER_NAME
 export ROLE_NAME=${EMRCLUSTER_NAME}-execution-role
 export ACCOUNTID=$(aws sts get-caller-identity --query Account --output text)
@@ -203,8 +203,8 @@ helm install nodescaler autoscaler/cluster-autoscaler --namespace kube-system --
 # echo "==========================================================================================="
 # echo "  Patch k8s user permission for PVC, if eksctl version is < 0.111.0 , EMR < 6.8 ......"
 # echo "==========================================================================================="
-curl -o rbac_pactch.py https://raw.githubusercontent.com/aws/aws-emr-containers-best-practices/main/tools/pvc-permission/rbac_patch.py
-python3 rbac_pactch.py -n $EMR_NAMESPACE -p
+# curl -o rbac_pactch.py https://raw.githubusercontent.com/aws/aws-emr-containers-best-practices/main/tools/pvc-permission/rbac_patch.py
+# python3 rbac_pactch.py -n $EMR_NAMESPACE -p
 
 
 echo "Finished, proceed to submitting a job"
